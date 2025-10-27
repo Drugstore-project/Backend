@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from models.role import Role
 from database import SessionLocal
 
+
 def seed_roles():
     db: Session = SessionLocal()
     roles = ["admin", "pharmacist", "seller"]

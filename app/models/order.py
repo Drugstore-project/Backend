@@ -14,6 +14,8 @@ class Order(Base):
 
     user = relationship("User", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan")  # ✅ nova linha
+
 
 class OrderItem(Base):
     __tablename__ = "order_items"
@@ -23,7 +25,6 @@ class OrderItem(Base):
     product_id = Column(Integer, ForeignKey("products.id", ondelete="RESTRICT"))
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Float, nullable=False)
-    payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan")
 
 
     order = relationship("Order", back_populates="items")

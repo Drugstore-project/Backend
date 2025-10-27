@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 class PaymentBase(BaseModel):
     order_id: int
@@ -9,6 +10,11 @@ class PaymentBase(BaseModel):
 
 class PaymentCreate(PaymentBase):
     pass
+
+class PaymentUpdate(BaseModel):
+    type: Optional[str] = None
+    amount: Optional[float] = None
+    invoice_file: Optional[str] = None
 
 class PaymentOut(PaymentBase):
     id: int

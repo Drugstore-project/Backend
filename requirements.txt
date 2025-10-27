@@ -1,12 +1,17 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-psycopg2-binary
-python-dotenv
+fastapi==0.115.0
+uvicorn[standard]==0.30.3
+sqlalchemy==2.0.31
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
 pydantic
-passlib[bcrypt]
-python-jose[cryptography]
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+bcrypt==4.1.2
 email-validator
 python-multipart
-alembic
+alembic==1.13.2
+flake8
+black
+isort
+passlib[bcrypt]
 
