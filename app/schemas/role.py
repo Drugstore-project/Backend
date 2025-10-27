@@ -10,3 +10,6 @@ class RoleResponse(RoleBase):
     id: int
     class Config:
         orm_mode = True
+
+class RoleOut(RoleBase):
+    id: int
