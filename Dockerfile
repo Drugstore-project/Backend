@@ -14,5 +14,8 @@ COPY . .
 
 EXPOSE 8000
 
+ENV PYTHONPATH="/app"
+
+
 # Em dev: --reload; em prod, remova o --reload
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

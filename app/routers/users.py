@@ -5,7 +5,7 @@ from app.schemas.user import UserCreate, UserOut, UserUpdate
 from app.crud.user import create_user, list_users, get_user, update_user, delete_user
 from app.core.deps import require_roles
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(tags=["Users"])
 
 @router.post("/", response_model=UserOut)
 def create_user_endpoint(payload: UserCreate, db: Session = Depends(get_db)):

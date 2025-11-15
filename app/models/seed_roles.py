@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models.role import Role
-from database import SessionLocal
+from app.models.role import UserRole
+from app.database import SessionLocal
 
 
 def seed_roles():
@@ -8,8 +8,8 @@ def seed_roles():
     roles = ["admin", "pharmacist", "seller"]
 
     for r in roles:
-        if not db.query(Role).filter(Role.name == r).first():
-            db.add(Role(name=r))
+        if not db.query(UserRole).filter(UserRole.name == r).first():
+            db.add(UserRole(name=r))
     db.commit()
     db.close()
 

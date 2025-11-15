@@ -36,5 +36,26 @@ services:
     depends_on:
       - db
 
+  # service para executar a suíte de testes do projeto
+  tests:
+    build: .
+    container_name: drugstore-tests
+    # monta o código para que testes e arquivos gerados (ex: test.db) fiquem disponíveis
+    volumes:
+      - .:/app
+    # garante que as variáveis de ambiente do projeto sejam carregadas, mas sobrescreve DATABASE_URL
+    env_file:
+      - .env
+    environment:
+      # força uso de sqlite local para execuções de teste isoladas
+      DATABASE_URL: sqlite:///./test.db
+      # garante que o pacote 'app' seja importável dentro do container
+      PYTHONPATH: /app
+    working_dir: /app
+    depends_on:
+      - db
+    # comando que roda os testes
+    command: ["pytest", "-q","-vvvv"]
+
 volumes:
   postgres_data:
