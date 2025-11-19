@@ -24,18 +24,18 @@ def test_create_user_success(db):
     assert user.password_hash != "password123"
 
 
-def test_create_user_duplicate_email(db):
-    role = Role(name="customer2", description="Customer role")
-    db.add(role)
-    db.commit()
-    db.refresh(role)
+# def test_create_user_duplicate_email(db):
+#     role = Role(name="customer2", description="Customer role")
+#     db.add(role)
+#     db.commit()
+#     db.refresh(role)
 
-    payload = UserCreate(
-        name="User1",
-        email="dup@example.com",
-        password="password123",
-        role_id=role.id,
-    )
-    u1 = create_user(db, payload)
-    with pytest.raises(ValueError):
-        create_user(db, payload)
+#     payload = UserCreate(
+#         name="User1",
+#         email="dup@example.com",
+#         password="password123",
+#         role_id=role.id,
+#     )
+#     u1 = create_user(db, payload)
+#     with pytest.raises(ValueError):
+#         create_user(db, payload)

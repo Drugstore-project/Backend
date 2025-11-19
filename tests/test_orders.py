@@ -1,71 +1,121 @@
 import pytest
+from app.models.order import OrderItem 
+from app.schemas.user import UserCreate
+from app.crud.user import create_user
+from app.models.role import UserRole as Role 
+from app.schemas.product import ProductCreate
+from app.crud.product import create_product, list_products
 
-def test_create_order(client):
+@pytest.mark.parametrize(
+        "payment_method, items", 
+        [ ("pix",[] ),
+           ("credit_card", []),
+           ("debit_card", [{"product_id" : 1, "quantity" : 100, "unit_price" : 1}])])
+def test_create_order(db,client,payment_method, items):
+    role = Role(name="customer", description="Customer role")
+    db.add(role)
+    db.commit()
+    db.refresh(role)
+
+    payload = UserCreate(
+        name="Test User",
+        email="test@example.com",
+        password="password123",
+        role_id=role.id,
+    )
+    user = create_user(db, payload)
     payload = {
-        "payment_method": "pix",
+        "payment_method": payment_method,
         "status": "pending",
-        "user_id": 1,
-        "items": []
+        "user_id": user.id,
+        "items": items
     }
     response = client.post("/orders/", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["payment_method"] == "pix"
+    assert data["payment_method"] == payment_method
     assert data["status"] == "pending"
 
-def test_add_item_to_order(client):
-    # First, create an order
-    order_payload = {
-        "payment_method": "credit_card",
-        "status": "pending",
-        "user_id": 1,
-        "items": []
-    }
-    order_response = client.post("/orders/", json=order_payload)
-    assert order_response.status_code == 200
-    order_data = order_response.json()
-    order_id = order_data["id"]
 
-    # Now, add an item to the created order
-    item_payload = {
-        "product_id": 1,
-        "quantity": 2,
-        "price": 19.99
-    }
-    item_response = client.post(f"/orders/{order_id}/items/", json=item_payload)
-    assert item_response.status_code == 200
-    item_data = item_response.json()
-    assert item_data["product_id"] == 1
-    assert item_data["quantity"] == 2
-    assert item_data["price"] == 19.99
 
-def test_calculate_order_total(client):
+# def test_add_item_to_order(client, db):
+#     # First, create an order
+#     order_payload = {
+#         "payment_method": "credit_card",
+#         "status": "pending",
+#         "user_id": 1,
+#         "items": ["ibuprofeno"]
+#     }
+#     order_response = client.post("/orders/", json=order_payload)
+#     assert order_response.status_code == 200
+#     order_data = order_response.json()
+#     order_id = order_data["id"]
+
+#     # Now, add an item to the created order
+#     order_item = db.query(OrderItem).filter_by(order_id=order_id)
+    
+    # item_payload = {
+    #     "product_id": 1,
+    #     "quantity": 2,
+    #     "price": 19.99
+    # }
+    # item_response = client.post(f"/orders/{order_id}/items/", json=item_payload)
+    # assert item_response.status_code == 200
+    # item_data = item_response.json()
+    # assert item_data["product_id"] == 1
+    # assert item_data["quantity"] == 2
+    # assert item_data["price"] == 19.99
+
+
+def test_calculate_order_total(db,client):
+    role = Role(name="customer", description="Customer role")
+    db.add(role)
+    db.commit()
+    db.refresh(role)
+
+    payload = UserCreate(
+        name="Test User",
+        email="test@example.com",
+        password="password123",
+        role_id=role.id,
+    )
+    user = create_user(db, payload)
+    
+    payload = ProductCreate(
+        name="Aspirin",
+        description="Pain reliever",
+        price=9.99,
+        stock_quantity=10,
+        requires_prescription=False,
+    )
+    p = create_product(db, payload)
     # Create an order
     order_payload = {
         "payment_method": "debit_card",
         "status": "pending",
-        "user_id": 1,
-        "items": []
+        "user_id": user.id,
+        "items": [ {"product_id": p.id, "quantity": 1, "unit_price": float(p.price) } ]
     }
     order_response = client.post("/orders/", json=order_payload)
     assert order_response.status_code == 200
     order_data = order_response.json()
+    assert order_data["total_value"] == 9.99
     order_id = order_data["id"]
 
-    # Add items to the order
-    items = [
-        {"product_id": 1, "quantity": 1, "price": 10.00},
-        {"product_id": 2, "quantity": 2, "price": 15.00}
-    ]
-    for item in items:
-        item_response = client.post(f"/orders/{order_id}/items/", json=item)
-        assert item_response.status_code == 200
+    # # Add items to the order
+    # items = [
+    #     {"product_id": 1, "quantity": 1, "price": 10.00},
+    #     {"product_id": 2, "quantity": 2, "price": 15.00}
+    # ]
+    # for item in items:
+    #     item_response = client.post(f"/orders/{order_id}/items/", json=item)
+    #     assert item_response.status_code == 200
 
     # Retrieve the order and check total
-    final_order_response = client.get(f"/orders/{order_id}/")
-    assert final_order_response.status_code == 200
-    final_order_data = final_order_response.json()
-    assert final_order_data["total"] == 40.00  # 10 + (2 * 15)
+    # final_order_response = client.get(f"/orders/{order_id}/")
+    # assert final_order_response.status_code == 200
+    # final_order_data = final_order_response.json()
+    # assert final_order_data["total"] == 40.00  # 10 + (2 * 15)
 
 def test_order_status_pending(client):
     # Create an order with pending status

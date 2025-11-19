@@ -1,7 +1,4 @@
-import os
 import pytest
-import tempfile
-from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import Connection
@@ -12,50 +9,46 @@ from app.database import get_db
 from fastapi.testclient import TestClient
 
 
-@pytest.fixture(scope="session", autouse=True)
-def test_sqlite_db(tmp_path_factory):
-    """
-    Create a fresh sqlite file for the whole test session and remove it afterwards.
-    Also override app.database.engine and SessionLocal so application code uses this DB.
-    """
-    tmpdir = tmp_path_factory.mktemp("testdbs")
-    db_path = tmpdir / "test.db"
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_path}"
+# CONFIGURAÇÃO DO BANCO DE TESTE
+TEST_DATABASE_URL = "postgresql://druguser:drugpass@db:5432/drugstore"
 
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_postgres_db():
+    """
+    Usa um banco PostgreSQL REAL para testes.
+    Cria e remove todas as tabelas apenas 1 vez por sessão.
+    """
+    engine = create_engine(TEST_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-    # override the app's database globals so imported modules use the test engine/session
+    # override globais da aplicação
     app_database.engine = engine
     app_database.SessionLocal = TestingSessionLocal
 
-    # create schema
+    # prepara o schema
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
-    yield engine, TestingSessionLocal, db_path
+    yield engine, TestingSessionLocal
 
-    # teardown: drop tables, dispose engine and remove file
+    # limpa após toda a suíte de testes
     Base.metadata.drop_all(bind=engine)
     engine.dispose()
-    try:
-        os.remove(str(db_path))
-    except FileNotFoundError:
-        pass
 
 
 @pytest.fixture()
-def db(test_sqlite_db):
+def db(test_postgres_db):
     """
-    Per-test transactional session: begin a transaction on a connection and rollback at the end.
-    This gives each test isolation while keeping schema creation fast (session-scoped).
+    Cada teste roda dentro da sua própria transação,
+    que é revertida no final.
     """
-    engine, TestingSessionLocal, _ = test_sqlite_db
+    engine, TestingSessionLocal = test_postgres_db
 
     connection: Connection = engine.connect()
     transaction = connection.begin()
 
-    # bind a session to the connection
     session = TestingSessionLocal(bind=connection)
 
     try:
@@ -67,24 +60,16 @@ def db(test_sqlite_db):
 
 
 @pytest.fixture()
-def client(test_sqlite_db):
+def client(db):
     """
-    TestClient that uses the testing session for dependency injection.
-    Overrides the FastAPI get_db dependency so endpoints use the same test DB.
+    TestClient usando a mesma sessão `db` para garantir dados consistentes.
     """
-    _, TestingSessionLocal, _ = test_sqlite_db
-
     def _get_test_db():
-        db_session = TestingSessionLocal()
-        try:
-            yield db_session
-        finally:
-            db_session.close()
+        yield db
 
-    # override dependency
     app.dependency_overrides[get_db] = _get_test_db
 
-    with TestClient(app) as client:
-        yield client
+    with TestClient(app) as c:
+        yield c
 
     app.dependency_overrides.clear()

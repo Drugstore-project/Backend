@@ -1,8 +1,11 @@
 import pytest
 
 def test_create_client():
+    # payload = {
+    #            "name": "Joao",
+    #             "email": "joao@gmail.com"
+    # }
     pass
-
 def test_get_clients():
     pass
 

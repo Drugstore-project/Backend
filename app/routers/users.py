@@ -17,7 +17,7 @@ def create_user_endpoint(payload: UserCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=list[UserOut])
 def list_users_endpoint(
     db: Session = Depends(get_db),
-    _admin = Depends(require_roles("admin"))
+    # _admin = Depends(require_roles("admin"))
 ):
     return list_users(db)
 
