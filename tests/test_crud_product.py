@@ -36,5 +36,45 @@ def test_list(db):
     assert len(products) == 1
     product = products[0]
     assert product.name == payload.name
-   
 
+def test_update_product(db):
+    payload = ProductCreate(
+        name="Ibuprofen",
+        description="Anti-inflammatory",
+        price=14.99,
+        stock_quantity=20,
+        requires_prescription=False,
+    )
+
+    # cria um produto (reaproveita o create)
+    p = create_product(db, payload)
+
+    # atualiza o produto
+    p.name = "Ibuprofen Updated"
+    p.price = Decimal("12.99")
+    db.commit()
+    db.refresh(p)
+
+    # verifica se as alterações foram aplicadas
+    assert p.name == "Ibuprofen Updated"
+    assert p.price == Decimal("12.99")
+   
+def test_delete_product(db):
+    payload = ProductCreate(
+        name="Paracetamol",
+        description="Fever reducer",
+        price=7.99,
+        stock_quantity=15,
+        requires_prescription=False,
+    )
+
+    # cria um produto (reaproveita o create)
+    p = create_product(db, payload)
+
+    # deleta o produto
+    db.delete(p)
+    db.commit()
+
+    # verifica se o produto foi deletado
+    products = list_products(db)
+    assert all(product.id != p.id for product in products)

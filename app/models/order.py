@@ -14,8 +14,7 @@ class Order(Base):
 
     user = relationship("User", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
-    payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan")  # ✅ nova linha
-
+    payments = relationship("Payment", back_populates="order", cascade="all, delete-orphan") 
 
 class OrderItem(Base):
     __tablename__ = "order_items"
