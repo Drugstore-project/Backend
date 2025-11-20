@@ -18,12 +18,18 @@ def test_create_user_endpoint(client, db, setup_role):
         "email": "create_user@example.com",
         "password": "password123",
         "role_id": role.id,
+        "cpf": "123.456.789-00",
+        "phone": "(11) 99999-9999",
+        "address": "Rua Teste, 123"
     }
     response = client.post("/users/", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "create_user@example.com"
     assert data["name"] == "Test User Create"
+    assert data["cpf"] == "123.456.789-00"
+    assert data["phone"] == "(11) 99999-9999"
+    assert data["address"] == "Rua Teste, 123"
     assert "id" in data
 
 def test_list_users_endpoint(client, db, setup_role):
@@ -74,13 +80,19 @@ def test_update_user_endpoint(client, db, setup_role):
 
     update_payload = {
         "name": "Updated Name",
-        "email": "updated_email@example.com"
+        "email": "updated_email@example.com",
+        "cpf": "000.000.000-00",
+        "phone": "(00) 00000-0000",
+        "address": "Rua Atualizada, 000"
     }
     response = client.put(f"/users/{user.id}", json=update_payload)
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Updated Name"
     assert data["email"] == "updated_email@example.com"
+    assert data["cpf"] == "000.000.000-00"
+    assert data["phone"] == "(00) 00000-0000"
+    assert data["address"] == "Rua Atualizada, 000"
 
 def test_delete_user_endpoint(client, db, setup_role):
     role = setup_role

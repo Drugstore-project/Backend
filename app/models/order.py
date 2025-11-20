@@ -5,12 +5,12 @@ from app.db.base import Base
 class Order(Base):
     __tablename__ = "orders"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-    total_value = Column(Float, default=0)
-    status = Column(String(50), default="pending")
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    payment_method = Column(String(50), nullable=True)
+    id = Column(Integer, primary_key=True, index=True, comment="Identificador único do pedido")
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), comment="ID do usuário que fez o pedido")
+    total_value = Column(Float, default=0, comment="Valor total do pedido")
+    status = Column(String(50), default="pending", comment="Status do pedido (pending, paid, shipped, etc.)")
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="Data e hora de criação do pedido")
+    payment_method = Column(String(50), nullable=True, comment="Método de pagamento escolhido")
 
     user = relationship("User", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
@@ -19,11 +19,11 @@ class Order(Base):
 class OrderItem(Base):
     __tablename__ = "order_items"
 
-    id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"))
-    product_id = Column(Integer, ForeignKey("products.id", ondelete="RESTRICT"))
-    quantity = Column(Integer, nullable=False)
-    unit_price = Column(Float, nullable=False)
+    id = Column(Integer, primary_key=True, index=True, comment="Identificador único do item do pedido")
+    order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"), comment="ID do pedido relacionado")
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="RESTRICT"), comment="ID do produto comprado")
+    quantity = Column(Integer, nullable=False, comment="Quantidade comprada")
+    unit_price = Column(Float, nullable=False, comment="Preço unitário no momento da compra")
 
 
     order = relationship("Order", back_populates="items")

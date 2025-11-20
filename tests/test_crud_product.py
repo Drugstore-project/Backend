@@ -10,12 +10,16 @@ def test_create(db):
         price=9.99,
         stock_quantity=10,
         requires_prescription=False,
+        barcode="1234567890123",
+        category="Analgesic"
     )
     p = create_product(db, payload)
     assert p.id is not None
     assert p.name == "Aspirin"
     assert p.stock_quantity == 10
     assert p.price == Decimal("9.99")
+    assert p.barcode == "1234567890123"
+    assert p.category == "Analgesic"
 
 
 def test_list(db):
@@ -65,6 +69,7 @@ def test_delete_product(db):
         description="Fever reducer",
         price=7.99,
         stock_quantity=15,
+
         requires_prescription=False,
     )
 
