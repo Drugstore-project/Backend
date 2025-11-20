@@ -31,3 +31,7 @@ class OrderOut(OrderBase):
 
     class Config:
         from_attributes = True
+
+class OrderUpdate(BaseModel):
+    status: str | None = None
+    payment_method: str | None = None

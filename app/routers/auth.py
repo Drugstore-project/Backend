@@ -27,7 +27,9 @@ def login(
     user = get_user_by_email(db, form.username)
     if not user or not verify_password(form.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
-    token = create_access_token(subject=user.email, extra={"role": user.role})
+    
+    role_data = {"id": user.role.id, "name": user.role.name} if user.role else None
+    token = create_access_token(subject=user.email, extra={"role": role_data})
     return TokenOut(access_token=token)
 
 @router.get("/me", response_model=UserOut)

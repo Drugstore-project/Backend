@@ -117,12 +117,26 @@ def test_calculate_order_total(db,client):
     # final_order_data = final_order_response.json()
     # assert final_order_data["total"] == 40.00  # 10 + (2 * 15)
 
-def test_order_status_pending(client):
+def test_order_status_pending(db, client):
+    # Create user
+    role = Role(name="customer_pending", description="Customer role")
+    db.add(role)
+    db.commit()
+    db.refresh(role)
+
+    user_payload = UserCreate(
+        name="Test User Pending",
+        email="pending@example.com",
+        password="password123",
+        role_id=role.id,
+    )
+    user = create_user(db, user_payload)
+
     # Create an order with pending status
     payload = {
         "payment_method": "pix",
         "status": "pending",
-        "user_id": 1,
+        "user_id": user.id,
         "items": []
     }
     response = client.post("/orders/", json=payload)
@@ -130,12 +144,26 @@ def test_order_status_pending(client):
     data = response.json()
     assert data["status"] == "pending"
 
-def test_order_status_paid(client):
+def test_order_status_paid(db, client):
+    # Create user
+    role = Role(name="customer_paid", description="Customer role")
+    db.add(role)
+    db.commit()
+    db.refresh(role)
+
+    user_payload = UserCreate(
+        name="Test User Paid",
+        email="paid@example.com",
+        password="password123",
+        role_id=role.id,
+    )
+    user = create_user(db, user_payload)
+
     # Create an order with pending status
     order_payload = {
         "payment_method": "credit_card",
         "status": "pending",
-        "user_id": 1,
+        "user_id": user.id,
         "items": []
     }
     order_response = client.post("/orders/", json=order_payload)
@@ -152,12 +180,26 @@ def test_order_status_paid(client):
     updated_order_data = update_response.json()
     assert updated_order_data["status"] == "paid"
 
-def test_order_status_cancelled(client):
+def test_order_status_cancelled(db, client):
+    # Create user
+    role = Role(name="customer_cancelled", description="Customer role")
+    db.add(role)
+    db.commit()
+    db.refresh(role)
+
+    user_payload = UserCreate(
+        name="Test User Cancelled",
+        email="cancelled@example.com",
+        password="password123",
+        role_id=role.id,
+    )
+    user = create_user(db, user_payload)
+
     # Create an order with pending status
     order_payload = {
         "payment_method": "debit_card",
         "status": "pending",
-        "user_id": 1,
+        "user_id": user.id,
         "items": []
     }
     order_response = client.post("/orders/", json=order_payload)

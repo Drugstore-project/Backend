@@ -27,3 +27,4 @@ class OrderItem(Base):
 
 
     order = relationship("Order", back_populates="items")
+    prescription = relationship("app.models.prescription.Prescription", uselist=False, back_populates="order_item", cascade="all, delete-orphan")

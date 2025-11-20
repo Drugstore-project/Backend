@@ -3,7 +3,7 @@ from app.models.role import UserRole
 from app.schemas.role import RoleCreate
 
 def create_role(db: Session, role: RoleCreate):
-    db_role = UserRole(name=role.name)
+    db_role = UserRole(name=role.name, description=role.description)
     db.add(db_role)
     db.commit()
     db.refresh(db_role)

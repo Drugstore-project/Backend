@@ -20,7 +20,7 @@ class UserOut(BaseModel):
     name: str
     email: EmailStr
     is_active: bool
-    # role: str
+    role_id: int
 
     class Config:
         from_attributes = True
