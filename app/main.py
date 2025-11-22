@@ -16,14 +16,15 @@ from app.routers import (
     payments,
     prescriptions,
     role_router,
-    reports
+    reports,
+    supplier_orders
 )
 
 app = FastAPI(title="Drugstore API (FastAPI)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,4 +48,5 @@ app.include_router(payments.router)
 app.include_router(prescriptions.router, prefix="/prescriptions", tags=["Prescriptions"])
 app.include_router(role_router.router)
 app.include_router(reports.router)
+app.include_router(supplier_orders.router, prefix="/supplier-orders")
 

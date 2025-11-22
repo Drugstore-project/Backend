@@ -13,7 +13,8 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
             db=db,
             user_id=order_data.user_id,
             items_data=order_data.items,
-            payment_method=order_data.payment_method or "cash"
+            payment_method=order_data.payment_method or "cash",
+            seller_id=order_data.seller_id
         )
         if not order:
             raise HTTPException(status_code=400, detail="Could not create order")

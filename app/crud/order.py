@@ -1,10 +1,11 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.models.order import Order, OrderItem
 from app.models.product import Product
 
-def create_order(db: Session, user_id: int, items_data: list, payment_method: str):
+def create_order(db: Session, user_id: Optional[int], items_data: list, payment_method: str, seller_id: Optional[int] = None):
     total = 0
-    order = Order(user_id=user_id, payment_method=payment_method, status="pending")
+    order = Order(user_id=user_id, seller_id=seller_id, payment_method=payment_method, status="pending")
     db.add(order)
     db.flush()
 

@@ -47,6 +47,7 @@ class UserOut(BaseModel):
     client_type: Optional[str]
     is_active: bool
     role_id: int
+    role_name: Optional[str] = None
 
     class Config:
         """

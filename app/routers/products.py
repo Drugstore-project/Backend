@@ -5,9 +5,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
+from app.schemas.product_batch import ProductBatchOut
+from app.models.product_batch import ProductBatch
 from app.crud.product import create_product, list_products, get_product, update_product, delete_product
 
 router = APIRouter()
+
+@router.get("/{product_id}/batches", response_model=list[ProductBatchOut])
+def get_product_batches(product_id: int, db: Session = Depends(get_db)):
+    """
+    Lists all batches for a specific product.
+    """
+    batches = db.query(ProductBatch).filter(ProductBatch.product_id == product_id).all()
+    return batches
 
 @router.post("/", response_model=ProductOut)
 def create_product_endpoint(payload: ProductCreate, db: Session = Depends(get_db)):
@@ -22,7 +32,20 @@ def list_products_endpoint(db: Session = Depends(get_db)):
     Lists all products.
     """
     products = list_products(db)
-    print(f"DEBUG: Found {len(products)} products in DB")
+    
+    # Enrich with batch info
+    for p in products:
+        # Filter for batches with quantity > 0 and sort by expiration (relationship is already sorted but filter creates new list)
+        active_batches = [b for b in p.batches if b.quantity > 0]
+        if active_batches:
+            # Sort again to be safe or rely on relationship order if preserved
+            active_batches.sort(key=lambda x: x.expiration_date)
+            next_batch = active_batches[0]
+            p.next_expiration_date = next_batch.expiration_date
+            p.next_batch_number = next_batch.batch_number
+        else:
+            p.next_expiration_date = p.validity
+
     return products
 
 @router.get("/{product_id}", response_model=ProductOut)

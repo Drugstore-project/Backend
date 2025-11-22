@@ -2,6 +2,7 @@
 Product model definition.
 """
 from sqlalchemy import Column, Integer, String, Numeric, Boolean, Date
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 class Product(Base):
@@ -18,8 +19,11 @@ class Product(Base):
     price = Column(Numeric(10, 2), nullable=False, comment="Preço unitário do produto")
     stock_quantity = Column(Integer, default=0, comment="Quantidade em estoque")
     validity = Column(Date, nullable=True, comment="Data de validade do produto")
+    min_stock_level = Column(Integer, default=10, comment="Nível mínimo de estoque para alerta")
     stripe = Column(String(100), nullable=True, comment="Tarja do medicamento (ex: Preta, Vermelha)")
     requires_prescription = Column(Boolean, default=False, comment="Indica se requer receita médica")
+
+    batches = relationship("ProductBatch", back_populates="product", order_by="ProductBatch.expiration_date")
 
     def __repr__(self):
         return f"<Product(id={self.id}, name='{self.name}', price={self.price})>"

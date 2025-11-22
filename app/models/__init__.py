@@ -8,6 +8,8 @@ from app.models.product import Product
 from app.models.order import Order, OrderItem
 from app.models.payment import Payment
 from app.models.prescription import Prescription
+from app.models.supplier_order import SupplierOrder
+from app.models.product_batch import ProductBatch
 
 __all__ = [
     "User",
@@ -16,5 +18,7 @@ __all__ = [
     "Order",
     "OrderItem",
     "Payment",
-    "Prescription"
+    "Prescription",
+    "SupplierOrder",
+    "ProductBatch"
 ]
