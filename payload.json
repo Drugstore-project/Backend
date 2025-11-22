@@ -1,0 +1,11 @@
+{
+    "user_id": 1,
+    "items": [
+        {
+            "product_id": 1,
+            "quantity": 1,
+            "unit_price": 10.0
+        }
+    ],
+    "payment_method": "cash"
+}

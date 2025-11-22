@@ -9,8 +9,12 @@ from app.database import get_db
 from fastapi.testclient import TestClient
 
 
+import os
+
 # CONFIGURAÇÃO DO BANCO DE TESTE
-TEST_DATABASE_URL = "postgresql://druguser:drugpass@db:5432/drugstore"
+# Tenta usar localhost se não estiver no docker (assumindo que 'db' é para docker)
+db_host = os.getenv("DB_HOST", "localhost")
+TEST_DATABASE_URL = f"postgresql://druguser:drugpass@{db_host}:5432/drugstore"
 
 
 

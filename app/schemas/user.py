@@ -13,6 +13,8 @@ class UserCreate(BaseModel):
     cpf: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    birth_date: Optional[str] = None
+    client_type: Optional[str] = None
     password: constr(min_length=6)
     role_id: int   # referencia para a tabela roles
 
@@ -25,6 +27,8 @@ class UserUpdate(BaseModel):
     cpf: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    birth_date: Optional[str] = None
+    client_type: Optional[str] = None
     password: Optional[str] = None
     role_id: Optional[int] = None
     is_active: Optional[bool] = None
@@ -39,6 +43,8 @@ class UserOut(BaseModel):
     cpf: Optional[str]
     phone: Optional[str]
     address: Optional[str]
+    birth_date: Optional[str]
+    client_type: Optional[str]
     is_active: bool
     role_id: int
 

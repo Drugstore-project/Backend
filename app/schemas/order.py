@@ -25,6 +25,7 @@ class OrderCreate(OrderBase):
 
 class OrderOut(OrderBase):
     id: int
+    user_id: int
     total_value: float
     created_at: datetime
     items: List[OrderItemOut]

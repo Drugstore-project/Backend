@@ -21,7 +21,9 @@ def list_products_endpoint(db: Session = Depends(get_db)):
     """
     Lists all products.
     """
-    return list_products(db)
+    products = list_products(db)
+    print(f"DEBUG: Found {len(products)} products in DB")
+    return products
 
 @router.get("/{product_id}", response_model=ProductOut)
 def get_product_endpoint(product_id: int, db: Session = Depends(get_db)):

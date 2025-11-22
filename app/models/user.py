@@ -17,6 +17,8 @@ class User(Base):
     cpf = Column(String(14), unique=True, index=True, nullable=True, comment="CPF do usuário")
     phone = Column(String(20), nullable=True, comment="Telefone de contato")
     address = Column(String(255), nullable=True, comment="Endereço completo")
+    birth_date = Column(String(20), nullable=True, comment="Data de nascimento")
+    client_type = Column(String(50), nullable=True, comment="Tipo de cliente (regular, elderly, insurance)")
     password_hash = Column(String(255), nullable=False, comment="Hash da senha do usuário")
     is_active = Column(Boolean, default=True, comment="Indica se o usuário está ativo")
     orders = relationship("Order", back_populates="user")

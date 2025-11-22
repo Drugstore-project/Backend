@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import UserCreate, UserOut, UserUpdate
 from app.crud.user import create_user, list_users, get_user, update_user, delete_user
+from app.core.deps import get_current_user
+from app.models.user import User
 
 router = APIRouter(tags=["Users"])
 
@@ -18,6 +20,13 @@ def create_user_endpoint(payload: UserCreate, db: Session = Depends(get_db)):
         return create_user(db, payload)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/me", response_model=UserOut)
+def get_current_user_endpoint(current_user: User = Depends(get_current_user)):
+    """
+    Returns the current authenticated user.
+    """
+    return current_user
 
 @router.get("/", response_model=list[UserOut])
 def list_users_endpoint(
