@@ -27,6 +27,8 @@ def analytics_report(db: Session = Depends(get_db)):
     top_sellers_query = (
         db.query(User.name, func.sum(Order.total_value).label("total_sales"))
         .join(Order, Order.seller_id == User.id)
+        .join(UserRole, User.role_id == UserRole.id)
+        .filter(UserRole.name != 'client')
         .group_by(User.name)
         .order_by(func.sum(Order.total_value).desc())
         .limit(5)
