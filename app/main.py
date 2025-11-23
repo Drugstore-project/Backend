@@ -12,7 +12,8 @@ from app.routers import (
     prescriptions,
     role_router,
     reports,
-    supplier_orders
+    supplier_orders,
+    debug
 )
 
 app = FastAPI(title="Drugstore API (FastAPI)")
@@ -41,6 +42,7 @@ app.include_router(prescriptions.router, prefix="/prescriptions", tags=["Prescri
 app.include_router(role_router.router)
 app.include_router(reports.router)
 app.include_router(supplier_orders.router, prefix="/supplier-orders")
+app.include_router(debug.router, prefix="/debug", tags=["Debug"])
 
 @app.on_event("startup")
 def startup_event():
