@@ -14,10 +14,7 @@ if config.config_file_name is not None:
 settings = Settings()
 
 # Define a URL de conexão do banco vinda do .env
-DATABASE_URL = (
-    f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}"
-    f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-)
+DATABASE_URL = settings.database_url
 
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
