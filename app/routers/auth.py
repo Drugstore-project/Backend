@@ -10,7 +10,6 @@ from app.schemas.auth import TokenOut
 from app.crud.user import create_user, get_user_by_email
 from app.core.security import verify_password, create_access_token
 from app.core.deps import get_current_user
-from app.models.user import User  # Import User model for debugging purposes
 
 router = APIRouter()
 
@@ -34,23 +33,14 @@ def login(
     """
     Authenticates a user and returns an access token.
     """
-    print(f"LOGIN ATTEMPT: {repr(form.username)}")
-    # Debug: List all users in DB to see what's there
-    all_users = db.query(User).all()
-    print(f"DEBUG: Found {len(all_users)} users in DB: {[repr(u.email) for u in all_users]}")
-
+    print(f"LOGIN ATTEMPT: {form.username}")
     user = get_user_by_email(db, form.username)
     
     if not user:
-        # Try case-insensitive search for debugging
-        user_ci = db.query(User).filter(User.email.ilike(form.username)).first()
-        if user_ci:
-             print(f"DEBUG: User found via case-insensitive search! Stored: {user_ci.email}, Input: {form.username}")
-
-        print(f"LOGIN FAILED: User {repr(form.username)} not found")
+        print(f"LOGIN FAILED: User {form.username} not found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Incorrect email or password (User not found: {form.username})"
+            detail="Incorrect email or password"
         )
         
     if not verify_password(form.password, user.password_hash):
@@ -59,7 +49,7 @@ def login(
         # print(f"Stored hash: {user.password_hash}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password (Password mismatch)"
+            detail="Incorrect email or password"
         )
 
     print(f"LOGIN SUCCESS: {form.username}")

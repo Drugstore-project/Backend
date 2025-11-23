@@ -7,12 +7,13 @@ def create_prod_admin():
     print("This script will use the public API to register the admin user.")
     print("")
     
-    url = input("Please enter your deployed Backend URL (e.g. https://drugstore-backend.up.railway.app): ").strip()
+    # Auto-detect or use argument
+    import sys
+    if len(sys.argv) > 1:
+        url = sys.argv[1]
+    else:
+        url = "https://backend-production-8b52.up.railway.app"
     
-    if not url:
-        print("URL is required.")
-        return
-        
     # Remove trailing slash
     if url.endswith("/"):
         url = url[:-1]
