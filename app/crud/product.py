@@ -3,6 +3,9 @@ CRUD operations for Product model.
 """
 from sqlalchemy.orm import Session
 from app.models.product import Product
+from app.models.product_batch import ProductBatch
+from app.models.order import OrderItem
+from app.models.supplier_order import SupplierOrder
 from app.schemas.product import ProductCreate
 
 def create_product(db: Session, data: ProductCreate) -> Product:
@@ -24,6 +27,18 @@ def create_product(db: Session, data: ProductCreate) -> Product:
     db.add(p)
     db.commit()
     db.refresh(p)
+
+    # Create initial batch if provided
+    if data.batch_number and data.stock_quantity > 0 and data.validity:
+        batch = ProductBatch(
+            product_id=p.id,
+            batch_number=data.batch_number,
+            quantity=data.stock_quantity,
+            expiration_date=data.validity
+        )
+        db.add(batch)
+        db.commit()
+
     return p
 
 def list_products(db: Session) -> list[Product]:
@@ -53,11 +68,21 @@ def update_product(db: Session, product_id: int, data: dict) -> Product | None:
 
 def delete_product(db: Session, product_id: int) -> Product | None:
     """
-    Deletes a product.
+    Deletes a product and its dependencies (batches, orders, supplier orders).
     """
     p = get_product(db, product_id)
     if not p:
         return None
+    
+    # Delete OrderItems (Sales)
+    db.query(OrderItem).filter(OrderItem.product_id == product_id).delete()
+    
+    # Delete SupplierOrders
+    db.query(SupplierOrder).filter(SupplierOrder.product_id == product_id).delete()
+    
+    # Delete ProductBatches
+    db.query(ProductBatch).filter(ProductBatch.product_id == product_id).delete()
+    
     db.delete(p)
     db.commit()
     return p

@@ -19,6 +19,7 @@ class ProductCreate(BaseModel):
     validity: Optional[date] = None
     stripe: Optional[str] = None
     requires_prescription: bool = False
+    batch_number: Optional[str] = None
 
 class ProductOut(BaseModel):
     """
