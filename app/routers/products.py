@@ -73,7 +73,13 @@ def delete_product_endpoint(product_id: int, db: Session = Depends(get_db)):
     """
     Deletes a product.
     """
-    product = delete_product(db, product_id)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return {"detail": "Product deleted"}
+    try:
+        product = delete_product(db, product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        return {"detail": "Product deleted"}
+    except Exception as e:
+        # Log the error for debugging (optional, but good practice)
+        print(f"Error deleting product {product_id}: {e}")
+        # Return the error message to the client
+        raise HTTPException(status_code=400, detail=str(e))
