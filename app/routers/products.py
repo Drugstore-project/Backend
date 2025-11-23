@@ -32,6 +32,7 @@ def list_products_endpoint(db: Session = Depends(get_db)):
     Lists all products.
     """
     products = list_products(db)
+    print(f"Listing {len(products)} products")
     
     # Enrich with batch info
     for p in products:

@@ -6,6 +6,7 @@ from app.models.product import Product
 from app.models.product_batch import ProductBatch
 from app.models.order import OrderItem
 from app.models.supplier_order import SupplierOrder
+from app.models.prescription import Prescription
 from app.schemas.product import ProductCreate
 
 def create_product(db: Session, data: ProductCreate) -> Product:
@@ -75,6 +76,14 @@ def delete_product(db: Session, product_id: int) -> Product | None:
         return None
     
     try:
+        # Find OrderItems for this product to handle Prescriptions
+        order_items = db.query(OrderItem).filter(OrderItem.product_id == product_id).all()
+        order_item_ids = [item.id for item in order_items]
+        
+        if order_item_ids:
+            # Delete Prescriptions linked to these OrderItems
+            db.query(Prescription).filter(Prescription.order_item_id.in_(order_item_ids)).delete(synchronize_session=False)
+            
         # Delete OrderItems (Sales)
         db.query(OrderItem).filter(OrderItem.product_id == product_id).delete(synchronize_session=False)
         
