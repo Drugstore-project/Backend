@@ -7,6 +7,8 @@ from app.db.base import Base
 
 SQLALCHEMY_DATABASE_URL = settings.database_url
 
+print(f"DATABASE CONFIG: Connecting to {SQLALCHEMY_DATABASE_URL.split('@')[-1] if '@' in SQLALCHEMY_DATABASE_URL else 'SQLite/Local'}")
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
