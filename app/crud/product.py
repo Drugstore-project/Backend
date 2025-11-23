@@ -52,7 +52,20 @@ def get_product(db: Session, product_id: int) -> Product | None:
     """
     Retrieves a product by ID.
     """
-    return db.query(Product).filter(Product.id == product_id).first()
+    print(f"CRUD: get_product searching for ID {product_id} (type: {type(product_id)})")
+    p = db.query(Product).filter(Product.id == product_id).first()
+    print(f"CRUD: get_product result: {p}")
+    
+    if not p:
+        # Debug: Try raw SQL to see if it exists
+        try:
+            from sqlalchemy import text
+            result = db.execute(text("SELECT id, name FROM products WHERE id = :pid"), {"pid": product_id}).fetchone()
+            print(f"CRUD: Raw SQL check for ID {product_id}: {result}")
+        except Exception as e:
+            print(f"CRUD: Raw SQL check failed: {e}")
+            
+    return p
 
 def update_product(db: Session, product_id: int, data: dict) -> Product | None:
     """
