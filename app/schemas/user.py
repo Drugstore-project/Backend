@@ -15,7 +15,7 @@ class UserCreate(BaseModel):
     address: Optional[str] = None
     birth_date: Optional[str] = None
     client_type: Optional[str] = None
-    password: constr(min_length=6)
+    password: constr(min_length=5)
     role_id: int   # referencia para a tabela roles
 
 class UserUpdate(BaseModel):
