@@ -42,3 +42,26 @@ app.include_router(role_router.router)
 app.include_router(reports.router)
 app.include_router(supplier_orders.router, prefix="/supplier-orders")
 
+@app.on_event("startup")
+def startup_event():
+    """
+    Execute startup tasks, such as seeding the database with initial roles.
+    """
+    from app.database import SessionLocal
+    from app.models.role import UserRole
+    
+    db = SessionLocal()
+    roles = ["admin", "manager", "seller", "pharmacist", "client"]
+    try:
+        for role_name in roles:
+            exists = db.query(UserRole).filter(UserRole.name == role_name).first()
+            if not exists:
+                print(f"Seeding role: {role_name}")
+                db.add(UserRole(name=role_name))
+        db.commit()
+    except Exception as e:
+        print(f"Error seeding roles: {e}")
+    finally:
+        db.close()
+
+
