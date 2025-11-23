@@ -32,6 +32,17 @@ class Settings:
         if os.getenv("DATABASE_URL"):
             return os.getenv("DATABASE_URL")
             
+        # Fallback for local development if no Postgres is available
+        # This prevents crash on startup if 'db' host is not found
+        import socket
+        try:
+            socket.gethostbyname(self.DB_HOST)
+        except socket.gaierror:
+            # If DB_HOST is not resolvable (e.g. 'db' in local without docker), fallback to sqlite
+            if self.DB_HOST == "db":
+                print("WARNING: DB_HOST 'db' not found. Falling back to SQLite.")
+                return "sqlite:///./drugstore.db"
+
         return (
             f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
