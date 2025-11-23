@@ -3,11 +3,13 @@ from typing import List, Optional
 from datetime import datetime
 from app.schemas.product import ProductOut
 from app.schemas.user import UserOut
+from app.schemas.product_batch import ProductBatchOut
 
 class OrderItemBase(BaseModel):
     product_id: int
     quantity: int
     unit_price: float
+    batch_id: Optional[int] = None
 
 class OrderItemCreate(OrderItemBase):
     pass
@@ -15,6 +17,7 @@ class OrderItemCreate(OrderItemBase):
 class OrderItemOut(OrderItemBase):
     id: int
     product: Optional[ProductOut] = None
+    batch: Optional[ProductBatchOut] = None
 
     class Config:
         from_attributes = True

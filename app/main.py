@@ -1,12 +1,7 @@
-"""
-Main application entry point.
-Configures FastAPI app, routes, and database initialization.
-"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 # Import models to ensure they are registered with Base.metadata
-# pylint: disable=unused-import
 from app import models
 from app.routers import (
     users,
@@ -35,9 +30,6 @@ Base.metadata.create_all(bind=engine)
 
 @app.get("/health")
 def health():
-    """
-    Health check endpoint.
-    """
     return {"status": "ok"}
 
 app.include_router(auth_router.router, prefix="/auth", tags=["Auth"])

@@ -36,7 +36,44 @@ def test_create_order(db,client,payment_method, items):
     assert data["payment_method"] == payment_method
     assert data["status"] == "pending"
 
+def test_create_order_with_seller(db, client):
+    # Create customer role and user
+    role_customer = Role(name="customer_seller_test", description="Customer role")
+    db.add(role_customer)
+    
+    # Create seller role and user
+    role_seller = Role(name="seller_test", description="Seller role")
+    db.add(role_seller)
+    db.commit()
+    db.refresh(role_customer)
+    db.refresh(role_seller)
 
+    customer = create_user(db, UserCreate(
+        name="Customer User",
+        email="customer_seller@example.com",
+        password="password123",
+        role_id=role_customer.id,
+    ))
+
+    seller = create_user(db, UserCreate(
+        name="Seller User",
+        email="seller_user@example.com",
+        password="password123",
+        role_id=role_seller.id,
+    ))
+
+    payload = {
+        "payment_method": "cash",
+        "status": "paid",
+        "user_id": customer.id,
+        "seller_id": seller.id,
+        "items": []
+    }
+    
+    response = client.post("/orders/", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["seller_id"] == seller.id
 
 # def test_add_item_to_order(client, db):
 #     # First, create an order

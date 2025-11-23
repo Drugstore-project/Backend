@@ -26,9 +26,16 @@ def setup_report_data(db):
     db.commit()
 
     # Create Orders
-    o1 = Order(user_id=user.id, total_value=100.0, created_at=date.today())
-    o2 = Order(user_id=user.id, total_value=50.0, created_at=date.today() - timedelta(days=1))
+    o1 = Order(user_id=user.id, seller_id=user.id, total_value=100.0, created_at=date.today())
+    o2 = Order(user_id=user.id, seller_id=user.id, total_value=50.0, created_at=date.today() - timedelta(days=1))
     db.add_all([o1, o2])
+    db.commit()
+    
+    # Add items to orders for Top Products test
+    from app.models.order import OrderItem
+    oi1 = OrderItem(order_id=o1.id, product_id=p1.id, quantity=5, unit_price=10.0)
+    oi2 = OrderItem(order_id=o2.id, product_id=p2.id, quantity=2, unit_price=20.0)
+    db.add_all([oi1, oi2])
     db.commit()
 
     return {"user": user, "products": [p1, p2], "orders": [o1, o2]}
@@ -71,3 +78,26 @@ def test_controlled_medications_report(client, setup_report_data):
     for item in data:
         assert item["requires_prescription"] is True
         assert item["name"] == "Controlled Med"
+
+def test_analytics_report(client, setup_report_data):
+    response = client.get("/reports/analytics")
+    assert response.status_code == 200
+    data = response.json()
+    
+    # Check structure
+    assert "topSellers" in data
+    assert "salesHistory" in data
+    assert "monthlyProgress" in data
+    assert "topProducts" in data
+    
+    # Check Top Sellers
+    assert len(data["topSellers"]) > 0
+    assert data["topSellers"][0]["name"] == "Report User"
+    assert data["topSellers"][0]["value"] == 150.0
+    
+    # Check Top Products
+    assert len(data["topProducts"]) > 0
+    # p1 (Normal Med) sold 5 units, p2 (Controlled Med) sold 2 units
+    # So p1 should be first
+    assert data["topProducts"][0]["name"] == "Normal Med"
+    assert data["topProducts"][0]["quantity"] == 5

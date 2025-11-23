@@ -24,10 +24,12 @@ class OrderItem(Base):
     id = Column(Integer, primary_key=True, index=True, comment="Identificador único do item do pedido")
     order_id = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"), comment="ID do pedido relacionado")
     product_id = Column(Integer, ForeignKey("products.id", ondelete="RESTRICT"), comment="ID do produto comprado")
+    batch_id = Column(Integer, ForeignKey("product_batches.id"), nullable=True, comment="ID do lote do produto")
     quantity = Column(Integer, nullable=False, comment="Quantidade comprada")
     unit_price = Column(Float, nullable=False, comment="Preço unitário no momento da compra")
 
 
     order = relationship("Order", back_populates="items")
     product = relationship("app.models.product.Product")
+    batch = relationship("app.models.product_batch.ProductBatch")
     prescription = relationship("app.models.prescription.Prescription", uselist=False, back_populates="order_item", cascade="all, delete-orphan")
