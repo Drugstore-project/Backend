@@ -40,7 +40,7 @@ def login(
         print(f"LOGIN FAILED: User {form.username} not found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
+            detail=f"Incorrect email or password (User not found: {form.username})"
         )
         
     if not verify_password(form.password, user.password_hash):
@@ -49,7 +49,7 @@ def login(
         # print(f"Stored hash: {user.password_hash}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
+            detail="Incorrect email or password (Password mismatch)"
         )
 
     print(f"LOGIN SUCCESS: {form.username}")
