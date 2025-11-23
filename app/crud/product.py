@@ -74,15 +74,19 @@ def delete_product(db: Session, product_id: int) -> Product | None:
     if not p:
         return None
     
-    # Delete OrderItems (Sales)
-    db.query(OrderItem).filter(OrderItem.product_id == product_id).delete()
-    
-    # Delete SupplierOrders
-    db.query(SupplierOrder).filter(SupplierOrder.product_id == product_id).delete()
-    
-    # Delete ProductBatches
-    db.query(ProductBatch).filter(ProductBatch.product_id == product_id).delete()
-    
-    db.delete(p)
-    db.commit()
-    return p
+    try:
+        # Delete OrderItems (Sales)
+        db.query(OrderItem).filter(OrderItem.product_id == product_id).delete(synchronize_session=False)
+        
+        # Delete SupplierOrders
+        db.query(SupplierOrder).filter(SupplierOrder.product_id == product_id).delete(synchronize_session=False)
+        
+        # Delete ProductBatches
+        db.query(ProductBatch).filter(ProductBatch.product_id == product_id).delete(synchronize_session=False)
+        
+        db.delete(p)
+        db.commit()
+        return p
+    except Exception as e:
+        db.rollback()
+        raise e
