@@ -36,7 +36,7 @@ def test_user_email_validation(email, is_valid):
 
 @pytest.mark.parametrize("password, is_valid", [
     ("123456", True),
-    ("short", False),
+    ("1234", False),
     ("", False),
     ("verylongpasswordthatisdefinitelysecure", True)
 ])
