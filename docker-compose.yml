@@ -51,6 +51,8 @@ services:
       DATABASE_URL: sqlite:///./test.db
       # garante que o pacote 'app' seja importável dentro do container
       PYTHONPATH: /app
+      # Define o host do banco de dados para o nome do serviço no Docker
+      DB_HOST: db
     working_dir: /app
     depends_on:
       - db
